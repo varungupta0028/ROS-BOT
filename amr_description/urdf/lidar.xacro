@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:property name="laser_radius" value="0.1" />
+    <xacro:property name="laser_height" value="0.076" />
+    <xacro:property name="laser_mass" value="0.74" />
+
+    <xacro:macro name="lidar_sensor" params="mesh_file">
+        <link name="lidar_link">
+            <visual>
+                <geometry>
+                    <mesh filename="${mesh_file}" scale="0.001 0.001 0.001" />
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 -${pi / 2.0}"/>
+                <material name="grey" />
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="${mesh_file}" scale="0.001 0.001 0.001" />
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 -${pi / 2.0}"/>
+                <material name="grey" />
+            </collision>
+            <xacro:wheel_inertia m="${laser_mass}" r="${laser_radius}" h="${laser_height}"
+                                 xyz="0 0 0" rpy="0 0 0"  />
+        </link>
+    </xacro:macro>
+
+    <xacro:lidar_sensor mesh_file="file://$(find amr_description)/meshes/C16_V5.stl" />
+
+    <joint name="base_lidar_joint" type="fixed" >
+        <parent link="base_link" />
+        <child link="lidar_link" />
+        <origin xyz="0 0 0.25" rpy="0 0 0" />
+    </joint>
+
+    <!-- <link name="laser_frame" />
+
+    <joint name="lidar_laser_joint" type="fixed">
+        <parent link="lidar_link" />
+        <child link="laser_frame" />
+        <origin  xyz= "0 0 0.27" rpy="0 0 0" />
+    </joint> -->
+
+    <gazebo reference="lidar_link">
+        <sensor name="laser" type="gpu_lidar">
+            <pose> 0 0 0 0 0 0 </pose>
+            <topic>scan</topic>
+            <visualize>true</visualize>
+            <update_rate>10</update_rate>
+            <always_on>true</always_on>
+            <lidar>
+                <scan>
+                    <horizontal>
+                        <samples>720</samples>
+                        <resolution>1</resolution>
+                        <min_angle>-3.14</min_angle>
+                        <max_angle>3.14</max_angle>
+                    </horizontal>
+                </scan>
+                <range> 
+                    <min>0.1</min>
+                    <max>12</max>
+                    <resolution>0.01</resolution>
+                </range>
+            </lidar>
+        </sensor>
+    </gazebo>
+
+</robot>
